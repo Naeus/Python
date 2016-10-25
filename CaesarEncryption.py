@@ -7,10 +7,10 @@ def CaesarEncryption(plaintext, key):
     return plaintext
 
 def main():
-    with open(r'C:\Users\Naelone Maxwell\Desktop\Python\Resources\khanClue#1.txt') as f:
+    with open(r'C:\Users\Naelone Maxwell\Documents\GitHub\Python\Resources\khanClue#1_2.txt') as f:
         plaintext = f.read()
-    print(ascii_lowercase[19])
-    print(CaesarEncryption(plaintext,'t'))
+    print(ascii_lowercase[23])
+    print(CaesarEncryption(plaintext,'x'))
 
 while True:
     main()

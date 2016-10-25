@@ -11,7 +11,7 @@ def listFreq(list1):
     return freqDict
 
 while True:
-    with open(r'C:\Users\Naelone Maxwell\Desktop\Python\Resources\khanClue#1.txt') as f:
+    with open(r'C:\Users\Naelone Maxwell\Documents\GitHub\Python\Resources\khanClue#1_2.txt') as f:
         text = f.read()
         #text = input()
         freq = listFreq([x for x in isoLetters(text)])
