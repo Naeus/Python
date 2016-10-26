@@ -11,9 +11,18 @@ def listFreq(list1):
     freqDict = {key: freqDict[key] / len(list1) for key in freqDict}
     return freqDict
 
+def ShiftDet(aString):
+    aTuple = tuple(c for c in isoLetters(aString))
+    print(aTuple)
+    coincidence = tuple(char for char in aTuple)
+
 def freqEn():
     freqFile = r'C:\Users\Naelone Maxwell\Documents\GitHub\Python\Resources\Letter Frequency - English.txt'
     with open(freqFile) as f:
-        data = f.read().split()
+        data = tuple(f.read().split())
     freq = {key: value for key, value in zip(data[0::2], data[1::2])}
     return freq
+
+while True:
+    input()
+    ShiftDet('We are young.')

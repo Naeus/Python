@@ -20,7 +20,6 @@ def freqRead():
 while True:
     text = input()
     freq = listFreq([x for x in isoLetters(text)])
-    print(freqRead())
     #print(*freq, sep='\n')
     for key, value in freq.items() :
         print(key, '#' * round(value * 100))
