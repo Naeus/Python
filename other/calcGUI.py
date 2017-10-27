@@ -2,17 +2,19 @@
 
 import tkinter
 
-def white_list(string1):
-    from collections import defaultdict
-    keepTable = "0123456789+-*/"
-    d = defaultdict(str, str.maketrans(keepTable, keepTable))
-
-    return string1.translate(d)
-
 
 class Frame(tkinter.Frame):
     def __init__(self, master=None):
-        super().__init__(master)
+        self.text = tkinter.StringVar()
+
+    def white_list(self, keepTable="0123456789+-*/ ", *args):
+        from collections import defaultdict
+        d = defaultdict(str, str.maketrans(keepTable, keepTable))
+        tbf = self.text.get()
+        self.text.set(tbf.translate(d))
+
+    def method(self):
+        print("method works this way!")
 
     def btn_pad(self, size=(4, 2), fntSize=8, tabEnabled=False):
         self.negateBtn = tkinter.Button(self, text=chr(177), width=size[0], height=size[1], takefocus=tabEnabled)
@@ -21,16 +23,16 @@ class Frame(tkinter.Frame):
         self.pntBtn = tkinter.Button(self, text=".", width=size[0], height=size[1], takefocus=tabEnabled)
         self.pntBtn.grid(row=3, column=1)
 
-        self.zeroBtn = tkinter.Button(self, text="0", width=size[0], height=size[1], takefocus=tabEnabled)
+        self.zeroBtn = tkinter.Button(self, text="0", width=size[0], height=size[1], takefocus=tabEnabled, command=self.method)
         self.zeroBtn.grid(row=3, column=2)
 
-        self.oneBtn = tkinter.Button(self, text="1", width=size[0], height=size[1], takefocus=tabEnabled)
+        self.oneBtn = tkinter.Button(self, text="1", width=size[0], height=size[1], takefocus=tabEnabled, command=self.white_list)
         self.oneBtn.grid(row=2, column=0)
 
         self.twoBtn = tkinter.Button(self, text="2", width=size[0], height=size[1], takefocus=tabEnabled)
         self.twoBtn.grid(row=2, column=1)
 
-        self.threeBtn = tkinter.Button(self, text="3", width=size[0], height=size[1], takefocus=tabEnabled)
+        self.threeBtn = tkinter.Button(self, text="3", width=size[0], height=size[1], takefocus=tabEnabled, command=self.s.insert(0, "3"))
         self.threeBtn.grid(row=2, column=2)
 
         self.fourBtn = tkinter.Button(self, text="4", width=size[0], height=size[1], takefocus=tabEnabled)
@@ -77,9 +79,18 @@ class Frame(tkinter.Frame):
 
 
     def scrn(self):
-        self.s = tkinter.Entry(self, justify="right", font=("Default", 24, "normal"), insertontime="0", relief="flat")
+        self.s = tkinter.Entry(self, justify="right", font=("Default", 24, "normal"),
+         insertontime="0", relief="flat", textvariable=self.text)
         self.s.pack(fill="x", expand="1")
         self.s.focus_set()
+        self.text.trace('w', self.method)
+        '''
+        self.text.set("19023801nhjfsdbf a23 2ı34nb +112389+-123/4213/*")
+        from collections import defaultdict
+        keepTable="0123456789+-*/ "
+        d = defaultdict(str, str.maketrans(keepTable, keepTable))
+        self.text.set(self.text.get().translate(d)[:2])
+        '''
 
     def num_repr(self):
         self.num1 = 0
@@ -88,10 +99,10 @@ def asd(event):
     print("asd")
 
 
-
+'''
 def key(event):
     print (white_list("19023801nhjfsdbf a23 2ı34nb +112389+-123/4213/*"))
-
+'''
 
 mainWindow = tkinter.Tk()
 mainWindow.title("Calculator")
@@ -100,10 +111,9 @@ frame2 = Frame(master=mainWindow)
 frame1.btn_pad()
 frame2.scrn()
 frame2.focus_set()
-frame2.s.bind("a", key)
-frame1.oneBtn.bind("<Button-1>", key)
 frame1.grid(row=1, column=0)
 frame2.grid(row=0, sticky="wens")
+
 
 mainWindow.resizable(False, False)
 mainWindow.mainloop()
