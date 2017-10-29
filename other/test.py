@@ -1,10 +1,8 @@
 #! python3
 
-a = 3, 4
+a = []
 
+a.append(0)
+a.append(2)
 
-try:
-    for e in a:
-        print(e)
-except:
-    print(a)
+print(a)

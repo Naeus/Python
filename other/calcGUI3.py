@@ -43,7 +43,7 @@ class NumPad(tk.Frame):
             tk.Grid.rowconfigure(master, rowNumber, weight=1)
             tk.Grid.columnconfigure(master, colNumber, weight=1)
 
-            self.buttons[i].bind("<Configure>", lambda event, widgetObjects=self.buttons: CalculatorFrame.widget_resize_event(event, widgetObjects)) #WORK IN PROGRESS
+            #self.buttons[i].bind("<Configure>", lambda event, widgetObjects=self.buttons: CalculatorFrame.widget_resize_event(event, widgetObjects)) #WORK IN PROGRESS
 
 
 class EntryFrame(tk.Frame):
@@ -59,6 +59,7 @@ class EntryFrame(tk.Frame):
         self.entry1.configure(relief="flat")
         self.entry1.grid(sticky="news")
         self.entry1.focus_set()
+        tk.Grid.rowconfigure(self, 0, weight=1)
 
 
     def is_valid(self, char, validChars=set('0123456789+-*/ ')):
