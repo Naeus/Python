@@ -1,28 +1,10 @@
-import tkinter as tk
+import re
 
-initRoot = tk.Tk()
+s = '.qwe. 231 4+ 2425 - 23123 44 --/   12313dqw'
+#s = '.423 + .52'
 
-def new_Window():
-    width = entry1.get()
-    height = entry2.get()
-    #initRoot.destroy()
-    initRoot.geometry(width + "x" + height)
-    #root.mainloop()
-    #root
+#filteredS = re.findall(r'[0-9]* | [\.]? [0-9]+ [\s]? [+-*/] [\s]? [0-9]* [\.]? [0-9]+', s)
+filteredS = re.findall(r'([+-]?)(\d+)', s)
+print(filteredS)
 
-label1 = tk.Label(initRoot, text="Width:")
-entry1 = tk.Entry(initRoot)
-
-label2 = tk.Label(initRoot, text="Height:")
-entry2 = tk.Entry(initRoot)
-
-button1 = tk.Button(initRoot, text="Done", command=new_Window)
-
-label1.grid(row=0, column=0)
-entry1.grid(row=0, column=1)
-label2.grid(row=1, column=0)
-entry2.grid(row=1, column=1)
-button1.grid(row=2, columnspan=2)
-
-
-initRoot.mainloop()
+print(list(set("123"))[1])

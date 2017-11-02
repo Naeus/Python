@@ -14,9 +14,9 @@ class TwoFrames(tk.Frame):
         self.frame2.grid(row=0, column=1, sticky="nsew")
 
         #enables resizing for 0th row, and 1st and 2nd columns of an object of this class
-        tk.Grid.rowconfigure(self, 0, weight=1)
-        tk.Grid.columnconfigure(self, 0, weight=1)
-        tk.Grid.columnconfigure(self, 1, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
 
 class TwoLabels(tk.Frame):
     def __init__(self, master=None, color=True):
@@ -26,7 +26,7 @@ class TwoLabels(tk.Frame):
         self.label1 = tk.Label(self)
         self.label2 = tk.Label(self)
 
-        ##configures the background color of labels for demonstrative purposes
+        #configures the background color of labels for demonstrative purposes
         if color:
             #label1 will have red color
             self.label1.configure(bg="black")
@@ -40,13 +40,13 @@ class TwoLabels(tk.Frame):
 
 
         #manages the geometry
-        self.label1.grid(row=0, sticky="nsew")
-        self.label2.grid(row=1, sticky="nsew")
+        self.label1.grid(column=0, row=0, sticky="nsew")
+        self.label2.grid(column=0, row=1, sticky="nsew")
 
         #enables resizing like above, but this time for 2 rows and 1 column
-        tk.Grid.rowconfigure(self, 0, weight=1)
-        tk.Grid.rowconfigure(self, 1, weight=1)
-        tk.Grid.columnconfigure(self, 0, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
 
 #creates the mainWindow
 mainWindow = tk.Tk()
