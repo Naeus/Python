@@ -14,7 +14,7 @@ if (sys.platform == "win32"):
 elif (sys.platform == "win64"):
     base = "Win64GUI"    # Tells the build script to hide the console.
 
-}
+
 
 setup(
     name='KutsalAklinNerde?',

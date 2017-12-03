@@ -14,7 +14,7 @@ class CalculatorFrame(tk.Frame):                                                
         self.rowconfigure(1, weight=4)
         self.columnconfigure(0, weight=1)
         self.screen.grid(row=0, sticky="news")
-        self.numpad.grid(row=1, sticky="news")                              #There's only one column
+        self.numpad.grid(row=1, sticky="news")
 
     def widget_resize_event(self, event, widgetObjects):                               #Event that handles fontsize of widget's text upon resizing
         fontSize = event.height // 4                                            #should be along the lines of min(height/3, width /char_length)
@@ -33,20 +33,24 @@ class CalculatorFrame(tk.Frame):                                                
 
 class NumPad(tk.Frame):
     def __init__(self, master=None, button_command=lambda *args: ''):
-        self.button_command = button_command
         super().__init__(master)
+        self.button_command = button_command
         self.buttons(master=self)
 
     def buttons(self, master, buttonsNum=10, size=(4, 2), fntSize=12, tabEnabled=False):
-        buttons = list((tk.Button(master=master, text=str(num), width=size[0], height=size[1], font=("Default", fntSize, "normal"), takefocus=tabEnabled, command=lambda num=num: self.button_command(num))) for num in range(buttonsNum-1, -1, -1))
+        buttons = list((tk.Button(master=master, text=str(num), width=size[0], height=size[1], font=("Default", fntSize, "normal"), takefocus=tabEnabled, command=lambda var=num: self.button_command(var))) for num in range(buttonsNum-1, -1, -1))
         negateButton = tk.Button(master=master, text=chr(177), width=size[0], height=size[1], font=("Default", fntSize, "normal"), takefocus=tabEnabled)
         buttons.append(negateButton)
-        pointButton = tk.Button(master=master, text=".", width=size[0], height=size[1], font=("Default", fntSize, "normal"), takefocus=tabEnabled, command=lambda: pointButton.destroy())
-        buttons.append(pointButton)
+        equalsButton = tk.Button(master=master, text="=", width=size[0], height=size[1], font=("Default", fntSize, "normal"), takefocus=tabEnabled, command=lambda: equalsButton.destroy())
+        buttons.append(equalsButton)
+
+
+
+
         self.buttons = tuple(buttons)
 
         rowLength = 3
-        for i in range(buttonsNum+2):
+        for i in range(len(buttons)):
             rowNumber = i // rowLength
             colNumber = i % rowLength
             self.buttons[i].grid(row=rowNumber, column=colNumber, sticky="news")
@@ -55,14 +59,21 @@ class NumPad(tk.Frame):
 
             #self.buttons[i].bind("<Configure>", lambda event, widgetObjects=self.buttons: CalculatorFrame.widget_resize_event(event, widgetObjects)) #WORK IN PROGRESS
 
+class operationPad(tk.Frame):
+    def __init__(self, master=None, button_command=lambda *args: ''):
+        self.button_command = button_command
+        super().__init__(master)
+
+
 
 class EntryFrame(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
-        vcmd = (self.register(self.is_valid), '%P')
+        vcmd = (self.register(self.is_valid), '%S', '%s', '%P')
         self.text = tk.StringVar()
         self.isDoubleOperation = False
+        self.isDoublePoint = False
         self.lastChar = ''
 
         self.entry1 = tk.Entry(master=master, justify="right", font=("Default", 24, "normal"),
@@ -72,18 +83,28 @@ class EntryFrame(tk.Frame):
         self.entry1.grid(sticky="news")
         self.rowconfigure(0, weight=1)
 
-    def white_list(self, text, keepTable="0123456789+-*/ "):
+    def white_list(self, text, keepTable="0123456789+-*/ ."):
         from collections import defaultdict
         d = defaultdict(str, str.maketrans(keepTable, keepTable))
         return text.translate(d)
 
     # ERROR needs rework
-    def is_valid(self, text, numerals=set('0123456789'), operations='+-*/'):
-        if text == self.white_list(text):
-            return True
+    def is_valid(self, char, oldText, newText, numerals=set('0123456789'), operations=set('+-*/')):
+
+        #If typing in
+        if len(oldText) < len(newText):
+            if newText == self.white_list(newText):
+                if not ((self.lastChar == '' or self.lastChar == ' ') and char == ' '):
+                    self.lastChar = char
+                    return True
+                else:
+                    return False
+            else:
+                self.bell()
+                return False
+        #Can delete everything, always
         else:
-            self.bell()
-            return False
+            return True
 
 mainWindow = tk.Tk()                                                            #Creating the main window
 mainWindow.title("")                                                  #Setting the title of the main window
