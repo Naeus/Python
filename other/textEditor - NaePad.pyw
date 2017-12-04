@@ -4,13 +4,14 @@ import tkinter as tk
 from tkinter import filedialog
 #required for file's basename
 import os
+#required for save_before_leave basically
+from tkinter import messagebox
 
 #Nae Unicode text entering is missing
 
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.titleVar = tk.StringVar()
         self.title("Untitled - NaePad")
         self.iconbitmap(default="C:\\Users\\Naelone Maxwell\\Documents\\GitHub\\Python\\other\\asd.ico")
 
@@ -18,6 +19,43 @@ class MainWindow(tk.Tk):
         self.mainFrame.pack(fill="both", expand=True)
 
         self.mainFrame.text.focus_set()
+        self.protocol("WM_DELETE_WINDOW", lambda : self.save_before_leave(self.destroy))
+
+    def save_before_leave(self, callback, *args):
+
+        textBuffer = self.mainFrame.text.get('1.0', 'end-1c')
+
+        #if there's a current file
+        if self.mainFrame.curFilePath:
+            #if it content doesn't match the current buffer
+            if self.mainFrame.curFileCont != textBuffer:
+                response = messagebox.askyesnocancel("NaePad - Unsaved File", "Do you want to save before leaving?")
+                #if response is yes
+                if response:
+                    self.mainFrame.save_file()
+                    callback()
+                #if response is no
+                elif response is False:
+                    callback()
+
+            else:
+                callback()
+
+        else:
+            #if there's any text in the buffer
+            if textBuffer:
+                response = messagebox.askyesnocancel("NaePad - Unsaved File", "Do you want to save before leaving?")
+                #If it's a yes
+                if response:
+                    self.mainFrame.save_as_file()
+                    callback()
+                #if it's a no
+                elif response is False:
+                    callback()
+            else:
+                callback()
+        #required in order to prevent "tagbinds" from happening
+        return "break"
 
 
 class MainFrame(tk.Frame):
@@ -31,6 +69,9 @@ class MainFrame(tk.Frame):
 
         #path of the current file
         self.curFilePath = ''
+
+        #current file
+        self.curFileCont = ''
 
         self.text = tk.Text(self, wrap="none")
         #color scheme
@@ -56,46 +97,42 @@ class MainFrame(tk.Frame):
         self.text['xscrollcommand'] = self.scrollX.set
 
     def menu_command_config(self):
-
         #New
-        self.menu.file.entryconfig(0, command=self.new_file)
-
+        self.menu.file.entryconfig(0, command=lambda : self.master.save_before_leave(self.new_file))
         #Open...
-        self.menu.file.entryconfig(1, command=self.open_file)
-
+        self.menu.file.entryconfig(1, command=lambda : self.master.save_before_leave(self.open_file))
         #Save
         self.menu.file.entryconfig(2, command=self.save_file)
-
         #Save as
         self.menu.file.entryconfig(3, command=self.save_as_file)
 
-
         #Cut
         self.menu.edit.entryconfig(0, command=self.cut)
-
         #Copy
         self.menu.edit.entryconfig(1, command=self.copy)
-
         #Paste
         self.menu.edit.entryconfig(2, command=self.paste)
-
         #Delete
         self.menu.edit.entryconfig(3, command=self.delete)
 
     def key_binds_config(self):
-        self.text.bind('<Control-n>', self.new_file)
-        self.text.bind('<Control-N>', self.new_file)
-        self.text.bind('<Control-o>', self.open_file)
-        self.text.bind('<Control-O>', self.open_file)
+        self.text.bind('<Control-n>', lambda event : self.master.save_before_leave(self.new_file))
+        self.text.bind('<Control-N>', lambda event : self.master.save_before_leave(self.new_file))
+        self.text.bind('<Control-o>', lambda event : self.master.save_before_leave(self.open_file))
+        self.text.bind('<Control-O>', lambda event : self.master.save_before_leave(self.open_file))
         self.text.bind('<Control-s>', self.save_file)
         self.text.bind('<Control-S>', self.save_file)
-        #BALI doesn't work
         self.text.bind('<Control-Shift-s>', self.save_as_file)
         self.text.bind('<Control-Shift-S>', self.save_as_file)
 
     def new_file(self, *args):
         self.text.delete("1.0", "end")
         self.curFilePath = ''
+        self.curFileCont = ''
+
+        #update window name to file name BAD NAE BAD
+        self.master.title("Untitled - NaePad")
+
 
     def open_file(self, *args):
 
@@ -108,15 +145,17 @@ class MainFrame(tk.Frame):
                 #open only UTF-8 encoded files
                 with open(filePath, encoding="UTF-8") as f:
                     self.text.delete("1.0", "end")
-                    self.text.insert("1.0", f.read())
+                    self.curFileCont = f.read()
+                    self.text.insert("1.0", self.curFileCont)
             #if it's not UTF-8 then
             except UnicodeDecodeError:
                 #open as ANSI encoding
                 with open(filePath, encoding="ANSI") as f:
                     self.text.delete("1.0", "end")
-                    self.text.insert("1.0", f.read())
+                    self.curFileCont = f.read()
+                    self.text.insert("1.0", self.curFileCont)
 
-            #update window name to file name
+            #update window name to file name BAD NAE BAD
             self.master.title(os.path.basename(f.name) + " - NaePad")
 
             #update current file path
@@ -128,14 +167,16 @@ class MainFrame(tk.Frame):
             try:
                 #open only UTF-8 encoded files
                 with open(self.curFilePath, 'w', encoding="UTF-8") as f:
-                    f.write(self.text.get('1.0', 'end-1c'))
+                    self.curFileCont = self.text.get('1.0', 'end-1c')
+                    f.write(self.curFileCont)
             #if it's not UTF-8 then
             except UnicodeDecodeError:
                 #open as ANSI encoding
                 with open(self.curFilePath, 'w', encoding="ANSI") as f:
-                    f.write(self.text.get('1.0', 'end-1c'))
+                    self.curFileCont = self.text.get('1.0', 'end-1c')
+                    f.write(self.curFileCont)
 
-            #update window name to file name
+            #update window name to file name BAD NAE BAD
             self.master.title(os.path.basename(f.name) + " - NaePad")
 
         else:
@@ -210,8 +251,8 @@ class FileMenu(tk.Menu):
 
         #add the line before exit
         self.add_separator()
-        #destroy's the grandparent, which is assumed to be a toplevel
-        self.add_command(label="Exit                 Alt + F4", command=master.master.destroy)
+        #destroy's the grandparent, which is assumed to be a toplevel BAD NAE BAD
+        self.add_command(label="Exit                 Alt + F4", command=lambda : master.master.save_before_leave(self.master.master.destroy))
 
 
 #Menu class that handles editorial operations
