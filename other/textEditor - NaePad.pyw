@@ -29,14 +29,7 @@ class MainWindow(tk.Tk):
         if self.mainFrame.curFilePath:
             #if it content doesn't match the current buffer
             if self.mainFrame.curFileCont != textBuffer:
-                response = messagebox.askyesnocancel("NaePad - Unsaved File", "Do you want to save before leaving?")
-                #if response is yes
-                if response:
-                    self.mainFrame.save_file()
-                    callback()
-                #if response is no
-                elif response is False:
-                    callback()
+                self.response_handle(callback)
 
             else:
                 callback()
@@ -44,18 +37,21 @@ class MainWindow(tk.Tk):
         else:
             #if there's any text in the buffer
             if textBuffer:
-                response = messagebox.askyesnocancel("NaePad - Unsaved File", "Do you want to save before leaving?")
-                #If it's a yes
-                if response:
-                    self.mainFrame.save_as_file()
-                    callback()
-                #if it's a no
-                elif response is False:
-                    callback()
+                self.response_handle(callback)
             else:
                 callback()
         #required in order to prevent "tagbinds" from happening
         return "break"
+
+    def response_handle(self, callback):
+        response = messagebox.askyesnocancel("NaePad - Unsaved File", "Do you want to save before leaving?")
+        #if response is yes
+        if response:
+            self.mainFrame.save_file()
+            callback()
+        #if response is no
+        elif response is False:
+            callback()
 
 
 class MainFrame(tk.Frame):
@@ -125,6 +121,44 @@ class MainFrame(tk.Frame):
         self.text.bind('<Control-Shift-s>', self.save_as_file)
         self.text.bind('<Control-Shift-S>', self.save_as_file)
 
+
+    #method handling file operations with encoding in mind
+    def file_operation(self, file_path, file_opt='r'):
+        #if file_path exists
+        if file_path:
+            try:
+                #open only UTF-8 encoded files
+                with open(file_path, file_opt, encoding="UTF-8") as f:
+                    self.data_operation(f, file_opt)
+            #if it's not UTF-8 then
+            except UnicodeDecodeError:
+                #open as ANSI encoding
+                with open(file_path, fil_opt, encoding="ANSI") as f:
+                    self.data_operation(f, file_opt)
+
+            #update current file path
+            self.curFilePath = file_path
+
+            #update window name to file name BAD NAE BAD
+            self.master.title(os.path.basename(f.name) + " - NaePad")
+
+        #If it's a save operation and there's no file_path
+        elif ((not file_path) and (file_opt == 'w')):
+            self.save_as_file()
+
+    #data writing and reading method
+    def data_operation(self, file_data, file_opt):
+        #read data
+        if file_opt == 'r':
+            self.text.delete("1.0", "end")
+            self.curFileCont = file_data.read()
+            self.text.insert("1.0", self.curFileCont)
+        #write data
+        elif file_opt == 'w':
+            self.curFileCont = self.text.get('1.0', 'end-1c')
+            file_data.write(self.curFileCont)
+
+
     def new_file(self, *args):
         self.text.delete("1.0", "end")
         self.curFilePath = ''
@@ -133,54 +167,15 @@ class MainFrame(tk.Frame):
         #update window name to file name BAD NAE BAD
         self.master.title("Untitled - NaePad")
 
-
     def open_file(self, *args):
 
         #get filepath from user with gui
         filePath = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"),("All files", "*.*")))
 
-        # if filePath is selected
-        if filePath:
-            try:
-                #open only UTF-8 encoded files
-                with open(filePath, encoding="UTF-8") as f:
-                    self.text.delete("1.0", "end")
-                    self.curFileCont = f.read()
-                    self.text.insert("1.0", self.curFileCont)
-            #if it's not UTF-8 then
-            except UnicodeDecodeError:
-                #open as ANSI encoding
-                with open(filePath, encoding="ANSI") as f:
-                    self.text.delete("1.0", "end")
-                    self.curFileCont = f.read()
-                    self.text.insert("1.0", self.curFileCont)
-
-            #update window name to file name BAD NAE BAD
-            self.master.title(os.path.basename(f.name) + " - NaePad")
-
-            #update current file path
-            self.curFilePath = filePath
+        self.file_operation(filePath, 'r')
 
     def save_file(self, *args):
-        #if there's already a file
-        if self.curFilePath:
-            try:
-                #open only UTF-8 encoded files
-                with open(self.curFilePath, 'w', encoding="UTF-8") as f:
-                    self.curFileCont = self.text.get('1.0', 'end-1c')
-                    f.write(self.curFileCont)
-            #if it's not UTF-8 then
-            except UnicodeDecodeError:
-                #open as ANSI encoding
-                with open(self.curFilePath, 'w', encoding="ANSI") as f:
-                    self.curFileCont = self.text.get('1.0', 'end-1c')
-                    f.write(self.curFileCont)
-
-            #update window name to file name BAD NAE BAD
-            self.master.title(os.path.basename(f.name) + " - NaePad")
-
-        else:
-            self.save_as_file()
+        self.file_operation(self.curFilePath, 'w')
 
     def save_as_file(self, *args):
         self.curFilePath = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=(("Text files", "*.txt"),("All files", "*.*")))
