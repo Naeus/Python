@@ -9,6 +9,7 @@ class AppName(tk.Tk):
 
         self.name = tk.Entry(self)
         self.version = tk.Entry(self)
+        self.version.insert('0', '0.1')
         self.description = tk.Entry(self)
         self.open = tk.Button(self, text="Open...", command=self.open)
         self.convert = tk.Button(self, text="Convert", command=self.convert)
