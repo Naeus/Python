@@ -108,7 +108,7 @@ class EntryFrame(tk.Frame):
 
 mainWindow = tk.Tk()                                                            #Creating the main window
 mainWindow.title("")                                                  #Setting the title of the main window
-mainWindow.iconbitmap(default="C:\\Users\\Naelone Maxwell\\Documents\\GitHub\\Python\\other\\asd.ico")
+#mainWindow.iconbitmap(default="C:\\Users\\Naelone Maxwell\\Documents\\GitHub\\Python\\other\\asd.ico")
 CalculatorFrame(mainWindow).pack(fill='both', expand=True)
 
 #mainWindow.resizable(False, False)

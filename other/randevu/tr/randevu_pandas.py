@@ -14,7 +14,7 @@ def book_booked_data(saatler, randevular):
         sa_idx_of_time_match = sa_df.index[sa_df['saat'] == ra_time].tolist()[0]
         sa_df_grp_siz_bfr = sa_df[sa_idx_of_time_match:sa_idx_of_time_match + grp_siz]
 
-        if (sa_df_grp_siz_bfr['kota'] > 0).all():
+        if (sa_df_grp_siz_bfr['kota'] > 0).all():   # -1 quotas if rq. times are avail.
             sa_df_grp_siz_bfr['kota'] = sa_df_grp_siz_bfr['kota'].apply(lambda a: a-1)
     pd.options.mode.chained_assignment = 'warn'     # put it back to default
 
@@ -29,12 +29,14 @@ def bookable_hours(saatler, kisi_sayisi):
     bookable_hours = list()
 
     for sa_index, quota, sa_time in sa_df.loc[sa_df['kota'] > 0].itertuples():
-        if (sa_df.iloc[sa_index:sa_index + kisi_sayisi]['kota'] > 0).all():
-            bookable_hours.append(sa_time)
+        last_idx_with_avail_quota = (sa_index + kisi_sayisi)
+        if last_idx_with_avail_quota <= sa_df.shape[0]:  # don't allow circularity
+            if (sa_df.iloc[sa_index:last_idx_with_avail_quota]['kota'] > 0).all():
+                bookable_hours.append(sa_time)
 
     return bookable_hours
 
-def musait_saatler(saatler, randevular, kisi_sayisi):
+def musait_saatler(saatler, randevular=None, kisi_sayisi=1):
     """ Returns available hours for a group size of kisi_sayisi in saatler given that
     randevular is booked in saatler.
     """
@@ -67,3 +69,5 @@ if __name__ == "__main__":
             {'kisi_sayisi': 4, 'saat': '10:00'}
         ]
     input(musait_saatler(saatler, randevular, 2))
+    input(musait_saatler(saatler, kisi_sayisi=9))
+    input(musait_saatler(saatler))
